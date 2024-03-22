@@ -1,0 +1,78 @@
+shinyproxy:
+  proxyDeploy:
+    image:
+      name: openanalytics/shinyproxy
+      tag: 3.0.2
+      pullPolicy: Always
+    replicaCount: 1
+    resources: 
+      limits:
+        cpu: 1000m
+        memory: 4Gi
+      requests:
+        cpu: 100m
+        memory: 1Gi
+    podAnnotations: {}
+    podLabels: {}
+    podSecurityContext: 
+      runAsNonRoot: true
+      runAsUser: 1000
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+  
+  proxyConfig:
+    landingPage: /
+    heartbeatRate: 10000
+    heartbeatTimeout: 60000
+    containerWaitTime: 20000
+    port: 8080
+    adminGroups: 
+    title: "Shinyproxy"
+    defaultMaxInstances: -1
+    defaultProxyMaxLifeTime: -1
+    authentication:
+       type: openid
+       openid:
+         authURL: "***"
+         tokenURL: "***"
+         jwksURL: "***"
+         existingClientCredentialsSecretName: secret-oidc-shinyproxy-example
+         usernameAttribute: preferred_username
+         rolesClaim : groups
+  
+  apps:
+    - id: "hello"
+      display-name: "Application Hello World"
+      description: "Application Shiny simple mise à disposition via shinyproxy"
+      container-image: "***"
+      container-cmd: []
+      access-groups: []
+      container-memory-limit: 4000Mi
+      container-cpu-limit: 1000m
+      container-memory-request: 2000Mi
+      container-cpu-request: 100m
+      max-lifetime: 120
+
+  ingress:
+    enabled: true
+    tls: true
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    hostname: shinyproxy-example.lab.sspcloud.fr
+  
+  service:
+      type: ClusterIP
+      port: 8080
+  
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
